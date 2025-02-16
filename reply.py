@@ -2,7 +2,9 @@ import speech_recognition as sr
 from gtts import gTTS
 import os
 from openai import OpenAI
+from dotenv import load_dotenv
 
+load_dotenv() 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_API_KEY)
 
@@ -20,7 +22,7 @@ def recognize_speech():
         return None
 
 def chat_with_haruka(text):
-    response = client.chat.completations.create(
+    response = client.chat.completions.create(
         model="gpt-4o",
         messages=[{"role": "user", "content": text}]
     )
@@ -29,13 +31,17 @@ def chat_with_haruka(text):
 def speak_response(response_text):
     tts = gTTS(text=response_text, lang='ja')
     tts.save("response.mp3")
-    os.system("mpg123 response.mp3")  # Mac or Linux
-    # playsound('response.mp3')  # Windowsならこっち
+    os.system("afplay response.mp3")  # ←Macならafplayが安定
+    os.remove("response.mp3")
 
 if __name__ == "__main__":
     while True:
         user_input = recognize_speech()
         if user_input:
+            if user_input == "さよなら":
+                print("バイバーイ！")
+                speak_response("バイバーイ！")
+                break
             response = chat_with_haruka(user_input)
             print(f"はるか: {response}")
             speak_response(response)
