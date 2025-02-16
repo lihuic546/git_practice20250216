@@ -1,9 +1,10 @@
 import speech_recognition as sr
 from gtts import gTTS
 import os
-import openai
+from openai import OpenAI
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 def recognize_speech():
     recognizer = sr.Recognizer()
@@ -19,11 +20,11 @@ def recognize_speech():
         return None
 
 def chat_with_haruka(text):
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+    response = client.chat.completations.create(
+        model="gpt-4o",
         messages=[{"role": "user", "content": text}]
     )
-    return response['choices'][0]['message']['content']
+    return response.choices[0].message.content
 
 def speak_response(response_text):
     tts = gTTS(text=response_text, lang='ja')
